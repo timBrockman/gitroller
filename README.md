@@ -1,5 +1,5 @@
 # GitRoller
-Automates good git habits.
+Automates good git habits
 
 ## Uses Git Skele vs flow or monorepo
 - 7x7

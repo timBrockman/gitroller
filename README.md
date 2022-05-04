@@ -1,7 +1,7 @@
 # GitRoller
 Automates good git habits
 
-## Uses Git Skele vs flow or monorepo
+## Uses Git Skele vs flow or whatever
 - 7x7
 - one week off
 - 3 per day min

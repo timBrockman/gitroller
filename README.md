@@ -31,4 +31,5 @@ Automates good habits on GitHub
 7. type ```git push origin master```
 8. star this repo
 9. enjoy your skeles
+10. keep the pattern going with good habits
 

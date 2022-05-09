@@ -25,7 +25,7 @@ async function addWords({words="foo ",fileName="README.md", repoName="gitskeles"
  * }
  */
 async function gitRoll({dateStr="Thu Jan 1 00:00:00 UTC 1970", repoName="gitskeles", msg="update README"}){
-  await $`cd ~/${repoName};git add .; git commit -m "${msg}"; GIT_COMMITTER_DATE="${dateStr}" git commit --amend --no-edit --date "${dateStr}"`;
+  await $`cd ~/${repoName};git add .; git commit -m ${msg}; GIT_COMMITTER_DATE="${dateStr}" git commit --amend --no-edit --date "${dateStr}"`;
 };
 
 

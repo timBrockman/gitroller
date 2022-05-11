@@ -33,7 +33,14 @@ async function gitRoll({dateStr="Thu Jan 1 00:00:00 UTC 1970", repoName="gitskel
  * main iife function
  */
 (async function(){
-  let repo = await question("Repo Name (gitskeles):") || 'gitskeles';
+  /***
+   * check for argv's
+   * or ask corresponding question
+   *  -r:repo (Repo Name)
+   */
+  let {r} = argv; 
+  let repo = r || await question("Repo Name (gitskeles):") || 'gitskeles';
+
   /* Pattern arrays
    */
    

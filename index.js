@@ -11,7 +11,7 @@
  * }
  */
 async function addWords({words="foo ",fileName="README.md", repoName="gitskeles"}){
-  await $`printf ${words} >> ~/${repoName}/${fileName}`;
+  await $`printf ${words} >> ${os.homedir()}/${repoName}/${fileName}`;
 };
 
 /***
@@ -25,7 +25,7 @@ async function addWords({words="foo ",fileName="README.md", repoName="gitskeles"
  * }
  */
 async function gitRoll({dateStr="Thu Jan 1 00:00:00 UTC 1970", repoName="gitskeles", msg="update README"}){
-  await $`cd ~/${repoName};git add .; git commit -m ${msg}; GIT_COMMITTER_DATE="${dateStr}" git commit --amend --no-edit --date "${dateStr}"`;
+  await $`cd ${os.homedir()}/${repoName};git add .; git commit -m ${msg}; GIT_COMMITTER_DATE="${dateStr}" git commit --amend --no-edit --date "${dateStr}"`;
 };
 
 
@@ -39,8 +39,8 @@ async function gitRoll({dateStr="Thu Jan 1 00:00:00 UTC 1970", repoName="gitskel
    
   /* Create the repo
    */
-  await $`rm -rf ~/${repo}; mkdir ~/${repo}`;
-  await $`cd ~/${repo}; git init;`;
+  await $`rm -rf ${os.homedir()}/${repo}; mkdir ${os.homedir()}/${repo}`;
+  await $`cd ${os.homedir()}/${repo}; git init;`;
 
   /**
    * Date() in JS vs bsd or gnu Date

@@ -10,7 +10,7 @@
  *  repoName (gitskeles) <string>: name of the new repo
  * }
  */
-async function addWords({words="foo ",fileName="README.md", repoName="gitskeles"}){
+async function addWords({words="X",fileName="README.md", repoName="gitskeles"}){
   await $`printf ${words} >> ${os.homedir()}/${repoName}/${fileName}`;
 };
 
@@ -37,13 +37,25 @@ async function gitRoll({dateStr="Thu Jan 1 00:00:00 UTC 1970", repoName="gitskel
    * check for argv's
    * or ask corresponding question
    *  -r:repo (Repo Name)
+   *  -s:string (string of X's and ' 's to render as pattern)
    */
-  let {r} = argv; 
-  let repo = r || await question("Repo Name (gitskeles):") || 'gitskeles';
-
+  let {r, s} = argv; 
+  let repo = r!=undefined && String(r) || 
+    await question("Repo Name (gitskeles):") || 
+    'gitskeles';
+  let patternString = s!=undefined && String(s) || 
+    await question("Please enter a string of spaces and x's (skele):") || 
+    "01111001110011111011011110111110110111001101111000000000";
   /* Pattern arrays
+   * splits patternString
+   * pads right of array with 0's to fill rest of week
    */
-   
+  let pattern = patternString.split('').map(c=>(c!=0)?1:0);
+  let originalLength = pattern.length;
+  let wks = Math.ceil(originalLength / 7);
+  pattern.length = wks * 7;
+  pattern.fill(0, originalLength);
+  
   /* Create the repo
    */
   await $`rm -rf ${os.homedir()}/${repo}; mkdir ${os.homedir()}/${repo}`;
@@ -66,33 +78,26 @@ async function gitRoll({dateStr="Thu Jan 1 00:00:00 UTC 1970", repoName="gitskel
    * Creates and commits README entry according
    * to weekly schedule for past year.
    */
-  async function walkSkele(){
-    const weeks = [
-      [0,1,1,1,1,0,0],
-      [1,1,1,0,0,1,1],
-      [1,1,1,0,1,1,0],
-      [1,1,1,1,0,1,1],
-      [1,1,1,0,1,1,0],
-      [1,1,1,0,0,1,1],
-      [0,1,1,1,1,0,0],
-      [0,0,0,0,0,0,0],
-    ];
-    for(week of weeks){
-      for(day of week){
-        if(day){
-          await addWords({words:"X", repoName:repo});
-          await gitRoll({dateStr:backDate, repoName:repo});
-        }else{
-          await addWords({words:" ", repoName:repo});
-        }
-        if(backTime >= todayTime) return 0;
-        backTime += (1000*60*60*24);
-        backDate = new Date(backTime);
+  async function walkPattern(pxs){
+    let day = 0;
+    for(px of pxs){
+      day++;
+      if(px){
+        await addWords({repoName:repo});
+        await gitRoll({dateStr:backDate, repoName:repo});
+      }else{
+        await addWords({words:" ", repoName:repo});
       }
-      await addWords({words:"\n", repoName:repo});
+      if(backTime >= todayTime) return 0;
+      backTime += (1000*60*60*24);
+      backDate = new Date(backTime);
+      if(day >= 7){
+        await addWords({words:"\n", repoName:repo});
+        day = 0;
+      };
     }
   }
   while(backTime < todayTime){
-    await walkSkele();
+    await walkPattern(pattern);
   };
 })();

@@ -34,18 +34,43 @@ async function gitRoll({dateStr="Thu Jan 1 00:00:00 UTC 1970", repoName="gitskel
  */
 (async function(){
   /***
+   * Default times
+   * today
+   * year before last Sunday
+   */
+  const now = new Date();
+  const today = new Date(`${now.getMonth()+1}/${now.getDate()}/${now.getFullYear()}`);
+   const yearAgo = new Date(`${today.getMonth()+1}/${today.getDate()}/${today.getFullYear()-1}`);
+  const yBLSun = new Date(yearAgo.getTime() + 1000*60*60*12 - (yearAgo.getDay() * 1000*60*60*24)); //added 12 hrs for savings times
+
+  /***
    * check for argv's
    * or ask corresponding question
-   *  -r:repo (Repo Name)
-   *  -s:string (string of X's and ' 's to render as pattern)
+   *  -r:repo (gitskeles) Repo Name
+   *  -p:string (skele pattern) string of X's and ' 's to render as pattern
+   *  -s:start date (year ago sunday) string mm/dd/yyyy
+   *  -e:end date (today) string mm/dd/yyyy
    */
-  let {r, s} = argv; 
+  let {r, p, s, e} = argv; 
   let repo = r!=undefined && String(r) || 
     await question("Repo Name (gitskeles):") || 
     'gitskeles';
-  let patternString = s!=undefined && String(s) || 
+  let patternString = p!=undefined && String(p) || 
     await question("Please enter a string of spaces and x's (skele):") || 
     "01111001110011111011011110111110110111001101111000000000";
+  let startDate = s!=undefined && String(s) ||
+    await question("Please enter a Start Date (last Sunday -1yr.):");
+  startDate = startDate && new Date(startDate) || yBLSun;
+  let endDate = e!=undefined && String(e) ||
+    await question("Please enter an End Date (today):");
+  endDate = endDate && new Date(endDate) || today;
+
+  console.log(s);
+  console.log(startDate);
+  console.log(e);
+  console.log(endDate);
+  await question('pause');
+  
   /* Pattern arrays
    * splits patternString
    * pads right of array with 0's to fill rest of week
@@ -55,24 +80,19 @@ async function gitRoll({dateStr="Thu Jan 1 00:00:00 UTC 1970", repoName="gitskel
   let wks = Math.ceil(originalLength / 7);
   pattern.length = wks * 7;
   pattern.fill(0, originalLength);
-  
+  console.log(pattern);
+  await question('pause');
+
   /* Create the repo
    */
   await $`rm -rf ${os.homedir()}/${repo}; mkdir ${os.homedir()}/${repo}`;
   await $`cd ${os.homedir()}/${repo}; git init;`;
 
-  /**
-   * Date() in JS vs bsd or gnu Date
-   */
-  const now = new Date();
-  const today = new Date(`${now.getMonth()+1}/${now.getDate()}/${now.getFullYear()}`);
-  const yearAgo = new Date(`${today.getMonth()+1}/${today.getDate()}/${today.getFullYear()-1}`);
-  const yBLSun = new Date(yearAgo.getTime() + 1000*60*60*12 - (yearAgo.getDay() * 1000*60*60*24)); //added 12 hrs for savings times
-  
+ 
   // time counters
-  let backTime = yBLSun.getTime();
-  let backDate = yBLSun;
-  const todayTime = today.getTime() + 1000*60*60*12; //+12hrs for savings time
+  let backTime = startDate.getTime();
+  let backDate = startDate;
+  const endTime = endDate.getTime() + 1000*60*60*12; //+12hrs for savings time
   
   /***
    * Creates and commits README entry according
@@ -88,7 +108,7 @@ async function gitRoll({dateStr="Thu Jan 1 00:00:00 UTC 1970", repoName="gitskel
       }else{
         await addWords({words:" ", repoName:repo});
       }
-      if(backTime >= todayTime) return 0;
+      if(backTime >= endTime) return 0;
       backTime += (1000*60*60*24);
       backDate = new Date(backTime);
       if(day >= 7){
@@ -97,7 +117,7 @@ async function gitRoll({dateStr="Thu Jan 1 00:00:00 UTC 1970", repoName="gitskel
       };
     }
   }
-  while(backTime < todayTime){
+  while(backTime < endTime){
     await walkPattern(pattern);
   };
 })();

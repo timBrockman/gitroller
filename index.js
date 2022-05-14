@@ -16,7 +16,7 @@ async function addWords({words="X",fileName="README.md", repoName="gitskeles"}){
 
 /***
  * gitRoll function
- * adds, commits w/$msg, and amends in repo $repoName on $dateStr
+ * adds, commits w/$msg, on $dateStr
  * Params as Object:
  * {
  *  dateStr (Epoch) <string>: date to ammend time of commit to
@@ -25,7 +25,7 @@ async function addWords({words="X",fileName="README.md", repoName="gitskeles"}){
  * }
  */
 async function gitRoll({dateStr="Thu Jan 1 00:00:00 UTC 1970", repoName="gitskeles", msg="update README"}){
-  await $`cd ${os.homedir()}/${repoName};git add .; git commit -m ${msg}; GIT_COMMITTER_DATE="${dateStr}" git commit --amend --no-edit --date "${dateStr}"`;
+  await $`cd ${os.homedir()}/${repoName};git add .; git commit -m ${msg} --date="${dateStr}"`;
 };
 
 
